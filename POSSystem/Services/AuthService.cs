@@ -1,4 +1,6 @@
-﻿using POSSystem.Models.DtoModels;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using POSSystem.Models.DtoModels;
 using POSSystem.Models.EntityModels;
 using POSSystem.Models.ResponseDTOModels;
 using POSSystem.Repositories.Interfaces;
@@ -9,28 +11,18 @@ namespace POSSystem.Services
     public class AuthService : IAuthService
     {
         private readonly IAuthRepository _repository;
+        private readonly IMapper _mapper;
 
-        public AuthService(IAuthRepository repository) => _repository = repository;
+        public AuthService(IAuthRepository repository, IMapper mapper)
+        {
+            _repository = repository;
+            _mapper = mapper;
+        }
         public async Task<ResponseUserDto> CreateUserAsync(RegisterUser dtoUser)
         {
-            var user = new User
-            {
-                Name = dtoUser.Name,
-                Email = dtoUser.Email,
-                Password = dtoUser.Password,
-                Address = dtoUser.Address,
-                IsActive = dtoUser.IsActive,
-            };
+            User user = _mapper.Map<User>(dtoUser);
             var response = await _repository.CreateUser(user);
-
-            var returnUser = new ResponseUserDto
-            {
-                Id = response.Id,
-                Name = response.Name,
-                Email = response.Email,
-                Address = response.Address,
-                IsActive = response.IsActive,
-            };
+            ResponseUserDto returnUser = _mapper.Map<ResponseUserDto>(response);
             return returnUser;
         }
     }
